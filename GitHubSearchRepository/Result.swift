@@ -11,14 +11,12 @@ import Foundation
 enum Result<T, Error: Swift.Error> {
     case success(T)
     case failure(Error)
-    
+
     init(value: T) {
-        Debug.PRINT_LOG()
         self = .success(value)
     }
-    
+
     init(error: Error) {
-        Debug.PRINT_LOG()
         self = .failure(error)
     }
 }

@@ -17,7 +17,7 @@ guard let kewWord = readLine() else { exit(1) }
 let client = GitHubClient()
 
 /// リクエストの発行
-let request = GitHubAPI.SearchRepositiries(keyword: kewWord)
+let request = GitHubAPIRequest.SearchRepositiries(keyword: kewWord)
 
 // リクエストの送信
 client.send(request: request) { result in
@@ -27,7 +27,7 @@ client.send(request: request) { result in
         // リポジトリの所有者と名前を出力
         response.items.forEach { print($0.owner.login + "/" + $0.name) }
         exit(0)
-        case let .failure(error):
+    case let .failure(error):
         print(error)
         exit(0)
     }
@@ -42,3 +42,74 @@ Thread.sleep(forTimeInterval: timeoutInterval)
 // タイムアウト後の処理
 print("Connection timeout")
 exit(1)
+
+/// リモートのブランチ名取得
+func fetchBranchName() {
+    /// APIクライアント生成
+    let client = GitHubClient()
+    
+    /// リクエストの発行
+    let request = GitHubAPIRequest.FetchBranchName()
+    
+    // リクエストの送信
+    client.send(request: request) { result in
+        DispatchQueue.main.async {
+            switch result {
+            case let .success(response):
+                print(response)
+            case let .failure(error):
+                print(error)
+            }
+        }
+    }
+}
+
+/// メンバー取得
+func fetchCollaborators() {
+    /// APIクライアント生成
+    let client = GitHubClient()
+    
+    /// リクエストの発行
+    let request = GitHubAPIRequest.FetchCollaborators()
+    
+    // リクエストの送信
+    client.send(request: request) { result in
+        DispatchQueue.main.async {
+            switch result {
+            case let .success(response):
+                print(response)
+            case let .failure(error):
+                print(error)
+            }
+        }
+    }
+}
+
+
+/// Github Actions 実行
+/// - Parameters:
+///   - branchName: ブランチ名
+func doGithubActions(branchName: String) {
+    /// APIクライアント生成
+    let client = GitHubClient()
+    let clientPayload = GitHubAPIRequest.DoGithubActions.JsonModel.Payload(ref: branchName)
+    let encoder = JSONEncoder()
+    guard let jsonValue = try? encoder.encode(GitHubAPIRequest.DoGithubActions.JsonModel(client_payload: clientPayload)) else {
+        fatalError("Failed to encode to JSON.")
+    }
+    
+    /// リクエストの発行
+    let request = GitHubAPIRequest.DoGithubActions(parameters: jsonValue)
+    
+    // リクエストの送信
+    client.send(request: request) { result in
+        DispatchQueue.main.async {
+            switch result {
+            case .success(_):
+                print("Done Github Actions")
+            case let .failure(error):
+                print(error)
+            }
+        }
+    }
+}

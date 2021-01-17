@@ -15,7 +15,6 @@ class GitHubClient {
     }()
     
     func send<Request: GitHubRequest>(request: Request, completion: @escaping (Result<Request.Response, GitHubClientError>) -> Void) {
-        Debug.PRINT_LOG()
         let urlRequest = request.buildURLRequest()
         let task = session.dataTask(with: urlRequest) { data, response, error in
             switch (data, response, error) {
@@ -25,10 +24,10 @@ class GitHubClient {
                 do {
                     let response = try request.response(from: data, urlResponse: response)
                     completion(Result(value: response))
-                } catch let error as GitHubAPIError {
+                } catch let error as GitHubAPIResultError {
                     completion(Result(error: .apiError(error)))
                 } catch {
-                    completion(Result(error: .responseParaseError(error)))
+                    completion(Result(error: .responseParseError(error)))
                 }
             default:
                 fatalError("invalid response combination \(String(describing: data)), \(String(describing: response)), \(String(describing: error)).")

@@ -8,28 +8,27 @@
 
 import Foundation
 
-struct GitHubAPIError: JSONDecodable, Error {
+struct GitHubAPIResultError: JSONDecodable, Error {
     struct FieldError: JSONDecodable {
         let resource: String
         let field: String
         let code: String
         
         init(json: Any) throws {
-            Debug.PRINT_LOG()
-            guard let dictionaly = json as? [String : Any] else {
+            guard let dictionary = json as? [String : Any] else {
                 throw JSONDecoderError.invalidFormat(json: json)
             }
             
-            guard let resource = dictionaly["resource"] as? String else {
-                throw JSONDecoderError.missingValues(key: "resource", actualValue: dictionaly["resource"] as Any)
+            guard let resource = dictionary["resource"] as? String else {
+                throw JSONDecoderError.missingValues(key: "resource", actualValue: dictionary["resource"] as Any)
             }
             
-            guard let field = dictionaly["field"] as? String else {
-                throw JSONDecoderError.missingValues(key: "field", actualValue: dictionaly["field"] as Any)
+            guard let field = dictionary["field"] as? String else {
+                throw JSONDecoderError.missingValues(key: "field", actualValue: dictionary["field"] as Any)
             }
             
-            guard let code = dictionaly["code"] as? String else {
-                throw JSONDecoderError.missingValues(key: "code", actualValue: dictionaly["code"] as Any)
+            guard let code = dictionary["code"] as? String else {
+                throw JSONDecoderError.missingValues(key: "code", actualValue: dictionary["code"] as Any)
             }
             
             self.resource = resource
@@ -42,7 +41,6 @@ struct GitHubAPIError: JSONDecodable, Error {
     let fieldErrors: [FieldError]
     
     init(json: Any) throws {
-        Debug.PRINT_LOG()
         guard let dictionaly = json as? [String : Any] else {
             throw JSONDecoderError.invalidFormat(json: json)
         }
